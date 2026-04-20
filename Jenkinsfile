@@ -2,11 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/phiraphongph/Jenkins_nginx_local_kube.git'
-            }
-        }
+
 
         stage('Deploy to K8s') {
             steps {
