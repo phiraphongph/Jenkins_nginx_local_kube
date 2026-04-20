@@ -4,15 +4,18 @@ pipeline {
     stages {
         stage('Deploy to K8s') {
             agent {
-                // ใช้ image ที่มี kubectl เตรียมไว้ให้แล้ว
                 docker { 
                     image 'bitnami/kubectl:latest'
-                    // ถ้าใช้กับ cluster ภายนอกต้องส่ง config เข้าไปด้วย
-                    args '--entrypoint="" -v $HOME/.kube:/root/.kube'
+                    args '--entrypoint="" -v $HOME/.kube:/root/.kube' 
                 }
             }
             steps {
                 script {
+                    // 1. เช็กว่าไฟล์เข้ามารึยัง
+                    sh 'ls -la /root/.kube'
+                    // 2. เช็กว่า kubectl เห็น cluster ไหนอยู่
+                    sh 'kubectl config view'
+                    // 3. รันคำสั่งจริง
                     sh 'kubectl apply -f nginx-deployment.yaml'
                 }
             }
