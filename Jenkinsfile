@@ -8,7 +8,7 @@ pipeline {
                 docker { 
                     image 'bitnami/kubectl:latest'
                     // ถ้าใช้กับ cluster ภายนอกต้องส่ง config เข้าไปด้วย
-                    args '-v $HOME/.kube:/root/.kube' 
+                    args '--entrypoint="" -v $HOME/.kube:/root/.kube'
                 }
             }
             steps {
