@@ -4,8 +4,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // สมมติว่าเก็บไฟล์ไว้ใน Git
-                checkout scm
+                git 'https://github.com/phiraphongph/Jenkins_nginx_local_kube.git'
             }
         }
 
