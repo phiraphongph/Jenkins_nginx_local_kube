@@ -6,26 +6,29 @@ pipeline {
             agent {
                 docker { 
                     image 'bitnami/kubectl:latest'
-                    args '--entrypoint="" -v $HOME/.kube:/root/.kube' 
+                    args '--entrypoint=""' 
                 }
             }
             steps {
-                script {
-                    // 1. เช็กว่าไฟล์เข้ามารึยัง
-                    sh 'ls -la /root/.kube'
-                    // 2. เช็กว่า kubectl เห็น cluster ไหนอยู่
-                    sh 'kubectl config view'
-                    // 3. รันคำสั่งจริง
-                    sh 'kubectl apply -f nginx-deployment.yaml'
+                // ดึงไฟล์ที่เราอัปโหลดเข้าไปมาใช้งาน
+                withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG')]) {
+                    script {
+                        // kubectl จะใช้ไฟล์จากตัวแปร KUBECONFIG อัตโนมัติ
+                        sh 'kubectl apply -f nginx-deployment.yaml'
+                    }
                 }
             }
         }
 
         stage('Verify Deployment') {
-            agent { docker { image 'bitnami/kubectl:latest'; args '-v $HOME/.kube:/root/.kube' } }
+            agent {
+                docker { image 'bitnami/kubectl:latest'; args '--entrypoint=""' }
+            }
             steps {
-                sh 'kubectl get pods'
-                sh 'kubectl get service'
+                withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG')]) {
+                    sh 'kubectl get pods'
+                    sh 'kubectl get service'
+                }
             }
         }
     }
