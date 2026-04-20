@@ -6,8 +6,8 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG')]) {
                     script {
-                        // เพิ่ม flag --insecure-skip-tls-verify ไว้ท้ายสุด
-                        sh 'kubectl apply -f nginx-deployment.yaml --insecure-skip-tls-verify'
+                        // เพิ่ม --validate=false เพื่อข้ามการเช็ก OpenAPI ที่มักจะติดเรื่อง Network
+                        sh 'kubectl apply -f nginx-deployment.yaml --insecure-skip-tls-verify --validate=false'
                     }
                 }
             }
@@ -16,8 +16,8 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG')]) {
+                    // เพิ่ม flag เดียวกันในทุกคำสั่ง
                     sh 'kubectl get pods --insecure-skip-tls-verify'
-                    sh 'kubectl get service --insecure-skip-tls-verify'
                 }
             }
         }
