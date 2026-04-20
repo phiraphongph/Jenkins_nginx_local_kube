@@ -3,17 +3,11 @@ pipeline {
 
     stages {
         stage('Deploy to K8s') {
-            agent {
-                docker { 
-                    image 'bitnami/kubectl:latest'
-                    args '--entrypoint=""' 
-                }
-            }
             steps {
-                // ดึงไฟล์ที่เราอัปโหลดเข้าไปมาใช้งาน
+                // ใช้กุญแจ kubeconfig-file ที่เราแก้ ID แล้ว
                 withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG')]) {
                     script {
-                        // kubectl จะใช้ไฟล์จากตัวแปร KUBECONFIG อัตโนมัติ
+                        // ใช้ kubectl ที่เราติดตั้งไว้ในตัว Jenkins (ตามวิธีที่ผมบอกก่อนหน้านี้)
                         sh 'kubectl apply -f nginx-deployment.yaml'
                     }
                 }
@@ -21,9 +15,6 @@ pipeline {
         }
 
         stage('Verify Deployment') {
-            agent {
-                docker { image 'bitnami/kubectl:latest'; args '--entrypoint=""' }
-            }
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG')]) {
                     sh 'kubectl get pods'
